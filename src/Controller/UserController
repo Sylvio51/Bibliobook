@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
+
+class UserController extends AbstractController
+{
+    #[Route('/create-user', name: 'create_user')]
+    public function createUser(
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $user = new User();
+        $user->setEmail('test@test.com');
+
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            '123456'
+        );
+        $user->setPassword($hashedPassword);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new Response('Utilisateur créé avec succès.');
+    }
+}
